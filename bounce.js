@@ -9,7 +9,7 @@ let spikes = {
     draw: function() {
         c.fillStyle = 'black';
         for (let i = 0; i < this.count; i++) {
-            let x = i * this.width;
+            let x = i * this.width + 100;
             c.beginPath();
             c.moveTo(x, innerHeight);             
             c.lineTo(x + this.width / 2, innerHeight - this.height);
@@ -80,7 +80,6 @@ class Ball {
         if(this.y!=p1.y)
         this.y = innerHeight;
         this.velocityin_y = 18;
-
         this.move_upward();
     }
 
