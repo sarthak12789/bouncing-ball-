@@ -1,3 +1,6 @@
+body{
+    background-color: black;
+}
 #canvas{
     border: 1px solid black;
     position:absolute;
@@ -6,5 +9,4 @@
     transform: translate(-50%,-50%);
     width:600px;
     height: 600px;
-    
 }
