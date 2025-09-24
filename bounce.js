@@ -2,35 +2,72 @@ let canvas = document.querySelector('canvas');
 let c = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
-
+let gameOver = false;
 class spikes {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.width = 20;
-            this.height = 30;
-            this.count = 5;
-        }
- make() {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 20;
+        this.height = 30;
+        this.count = 5;
+        this.velocity=0.5;
+        this.aceleration=0.1;
+    }
+    make() {
         c.fillStyle = 'black';
         for (let i = 0; i < this.count; i++) {
             let x = i * this.width + this.x;
             c.beginPath();
             c.moveTo(x, this.y);             
-            c.lineTo(x + this.width / 2, this.y- this.height);
+            c.lineTo(x + this.width / 2, this.y - this.height);
             c.lineTo(x + this.width, this.y); 
             c.closePath();
             c.fill();
         }
+
+    }
+
+    move_right() {
+        this.x += this.velocity;
+        this.velocity += this.aceleration;
+    }
+    move_left() {
+        this.x -= this.velocity;
+        this.velocity += this.aceleration;
     }
 };
-let s = [new spikes(400,innerHeight),
-new spikes(640,550),
-new spikes(600,300),
-new spikes(800,300),
+let s = [
+    new spikes(200,innerHeight),
+    new spikes(400,innerHeight),
+    new spikes(670,innerHeight),
+    new spikes(950,innerHeight),
+    new spikes(1200,innerHeight),
+    new spikes(1400,innerHeight)
 ];
+class destination
+{
+    constructor()
+    {
+        this.x=1600;
+        this.y=innerHeight;
+        this.velocity=0.5;
+        this.aceleration=0.1;
+    }
+    draw()
+    {  c.fillStyle='rgba(255, 217, 0, 1)';
+        c.fillRect(this.x,this.y-300,100,300);
+    }
 
-
+    move_right() {
+        this.x += this.velocity;
+        this.velocity += this.aceleration;
+    }
+    move_left() {
+        this.x -= this.velocity;
+        this.velocity += this.aceleration;
+    }
+}
+let d= new destination();
 
 class plateform {
     constructor(x, y) {
@@ -42,31 +79,25 @@ class plateform {
         this.aceleration = 0.1;
     }
     make() {
-        c.fillStyle = 'rgba(0, 255, 0, 1)';
+        c.fillStyle = 'rgba(15, 46, 248, 1)';
         c.fillRect(this.x, this.y, this.width, this.height);
     }
     move_right() {
-        c.clearRect(0, 0, innerWidth, innerHeight);
         this.x += this.velocity;
         this.velocity += this.aceleration;
-        p.forEach(p => p.make());
-        
-
     }
     move_left() {
-
-        c.clearRect(0, 0, innerWidth, innerHeight);
         this.x -= this.velocity;
         this.velocity += this.aceleration;
-        p.forEach(p => p.make());
     }
 };
-let p = [new plateform(250, 450),
-new plateform(500, 500),
-new plateform(770, 500),
-new plateform(910, 500),
-new plateform(1120, 500),
-new plateform(1500, 500),
+let p = [
+    new plateform(250, 450),
+    new plateform(500, 500),
+    new plateform(770, 500),
+    new plateform(1010, 500),
+    new plateform(1220, 500),
+    new plateform(1500, 500),
 ];
 
 class Ball {
@@ -84,6 +115,7 @@ class Ball {
         this.maxleft = 50;
         this.maxright = 200;
     }
+
     draw() {
         c.strokeStyle = "#e80404ff";
         c.beginPath();
@@ -92,13 +124,41 @@ class Ball {
         c.fillStyle = "#e80404ff";
         c.fill();
     }
+    checkSpikeCollision() {
+        for (let spikeGroup of s) {
+            for (let i = 0; i < spikeGroup.count; i++) {
+                let spikeX = spikeGroup.x + i * spikeGroup.width;
+                let spikeY = spikeGroup.y;
+                let spikeWidth = spikeGroup.width;
+                let spikeHeight = spikeGroup.height;
+                if (
+                    this.x + this.radius > spikeX &&
+                    this.x - this.radius < spikeX + spikeWidth &&
+                    this.y + this.radius > spikeY - spikeHeight
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     move_upward() {
+        if (gameOver) return; 
         c.clearRect(0, 0, innerWidth, innerHeight);
+
+        
+        if (this.checkSpikeCollision()) {
+            gameOver = true;
+            drawGameOver();
+            return;
+        }
 
         if (this.velocityin_y < 0 && this.y >= innerHeight - this.radius) {
             this.draw();
             p.forEach(p => p.make());
             s.forEach(s => s.make());
+            d.draw();
             this.y = innerHeight - this.radius;
             return;
         }
@@ -107,69 +167,87 @@ class Ball {
                 this.velocityin_y = 0;
             }
         }
-        // console.log(this.velocityin_y);
-        this.y -= this.velocityin_y; this.velocityin_y -= this.gravity;
+        this.y -= this.velocityin_y;
+        this.velocityin_y -= this.gravity;
+
         this.draw();
         p.forEach(p => p.make());
         s.forEach(s => s.make());
+        d.draw();
         requestAnimationFrame(this.move_upward.bind(this));
     }
+
     jump() {
+        if (gameOver) return;
         this.velocityin_y = 18;
         this.move_upward();
     }
 
     operate() {
+        if (gameOver) return; 
 
         if (this.leftarrow == true) {
             if (this.x > this.maxleft) {
                 this.x -= this.velocityin_x;
                 this.velocityin_x += this.acceleration;
-
             } else {
                 p.forEach(p => p.move_right());
+                s.forEach(s => s.move_right());
+                d.move_right();
             }
         }
         if (this.rightarrow == true) {
-            //c.clearRect(0,0,innerWidth,innerHeight);
             if (this.x < innerWidth - this.maxright) {
                 this.x += this.velocityin_x;
                 this.velocityin_x += this.acceleration;
             } else {
                 p.forEach(p => p.move_left());
+                s.forEach(s => s.move_left());
+                d.move_left();
             }
-
         }
+        if (this.checkSpikeCollision()) {
+            gameOver = true;
+            drawGameOver();
+            return;
+        }
+
         c.clearRect(0, 0, innerWidth, innerHeight);
         this.draw();
         p.forEach(p => p.make());
         s.forEach(s => s.make());
+        d.draw();
         requestAnimationFrame(this.operate.bind(this));
-
     }
-};
+}
+
+function drawGameOver() {
+    c.fillStyle = "rgba(0,0,0,0.7)";
+    c.fillRect(0, 0, innerWidth, innerHeight);
+    c.fillStyle = "white";
+    c.font = "50px Arial";
+    c.textAlign = "center";
+    c.fillText("GAME OVER", innerWidth/2, innerHeight/2);
+}
 
 let ball = new Ball(50, innerHeight - 20);
 ball.draw();
+
 addEventListener("keydown", (event) => {
     switch (event.key) {
         case "ArrowRight": ball.rightarrow = true; break;
         case "ArrowLeft": ball.leftarrow = true; break;
         case "ArrowUp": if (ball.y >= innerHeight - ball.radius) {
-            console.log(ball.y);
             ball.jump();
         }
     }
 });
-ball.operate();
 
 addEventListener("keyup", (event) => {
     switch (event.key) {
-        case "ArrowRight": ball.rightarrow = false; p.forEach(p => p.velocity = 0.7); ball.velocityin_x = 0.1; break;
-        case "ArrowLeft": ball.leftarrow = false; p.forEach(p => p.velocity = 0.7); ball.velocityin_x = 0.1; break;
-
+        case "ArrowRight": ball.rightarrow = false;d.velocity=0.7;s.forEach(s => s.velocity = 0.7); p.forEach(p => p.velocity = 0.7); ball.velocityin_x = 0.1; break;
+        case "ArrowLeft": ball.leftarrow = false; d.velocity=0.7;s.forEach(s => s.velocity = 0.7);p.forEach(p => p.velocity = 0.7); ball.velocityin_x = 0.1; break;
     }
-}
+});
 
-);
-
+ball.operate();
