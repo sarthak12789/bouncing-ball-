@@ -124,6 +124,18 @@ class Ball {
         c.fillStyle = "#e80404ff";
         c.fill();
     }
+    checkDestinationCollision() {
+    if (
+        this.x + this.radius > d.x &&
+        this.x - this.radius < d.x + 100 &&
+        this.y + this.radius > d.y - 300 &&
+        this.y - this.radius < d.y
+    ) {
+        return true;
+    }
+    return false;
+}
+
     checkSpikeCollision() {
         for (let spikeGroup of s) {
             for (let i = 0; i < spikeGroup.count; i++) {
@@ -146,6 +158,11 @@ class Ball {
     move_upward() {
         if (gameOver) return; 
         c.clearRect(0, 0, innerWidth, innerHeight);
+        if (this.checkDestinationCollision()) {
+           gameOver = true;
+           drawGameWon();
+           return;
+      }
 
         
         if (this.checkSpikeCollision()) {
@@ -185,6 +202,12 @@ class Ball {
 
     operate() {
         if (gameOver) return; 
+          
+        if (this.checkDestinationCollision()) {
+    gameOver = true;
+    drawGameWon();
+    return;
+}
 
         if (this.leftarrow == true) {
             if (this.x > this.maxleft) {
@@ -220,14 +243,21 @@ class Ball {
         requestAnimationFrame(this.operate.bind(this));
     }
 }
-
+function drawGameWon(){
+    c.fillStyle = "rgba(0,0,0,0.7)";
+    c.fillRect(0, 0, innerWidth, innerHeight);
+    c.fillStyle = "white";
+    c.font = "50px Arial";
+    c.textAlign = "center";
+    c.fillText("YOU WON!", innerWidth/2, innerHeight/2);
+}
 function drawGameOver() {
     c.fillStyle = "rgba(0,0,0,0.7)";
     c.fillRect(0, 0, innerWidth, innerHeight);
     c.fillStyle = "white";
     c.font = "50px Arial";
     c.textAlign = "center";
-    c.fillText("GAME OVER", innerWidth/2, innerHeight/2);
+    c.fillText("GAME OVER!", innerWidth/2, innerHeight/2);
 }
 
 let ball = new Ball(50, innerHeight - 20);
