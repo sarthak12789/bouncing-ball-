@@ -1,8 +1,12 @@
 let canvas = document.querySelector('canvas');
 let c = canvas.getContext('2d');
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = document.documentElement.clientWidth;
+canvas.height = document.documentElement.clientHeight;
 let gameOver = false;
+
+const platformImg = new Image();
+platformImg.src = 'bounceplat.png';
+
 class spikes {
     constructor(x, y) {
         this.x = x;
@@ -79,8 +83,10 @@ class plateform {
         this.aceleration = 0.1;
     }
     make() {
-        c.fillStyle = 'rgba(15, 46, 248, 1)';
-        c.fillRect(this.x, this.y, this.width, this.height);
+        // c.fillStyle = 'rgba(15, 46, 248, 1)';
+        // c.fillRect(this.x, this.y, this.width, this.height);
+        c.drawImage(platformImg, this.x, this.y, this.width, this.height);
+
     }
     move_right() {
         this.x += this.velocity;
@@ -107,13 +113,14 @@ class Ball {
         this.radius = 20;
         this.velocityin_y = 18;
         this.gravity = 0.5;
-        this.velocityin_x = 0.5;
+        this.velocityin_x = 0.7;
         this.acceleration = 0.1;
         this.rightarrow = false;
         this.leftarrow = false;
         this.uparrow = false;
         this.maxleft = 50;
         this.maxright = 200;
+        this.isjumping=false;
     }
 
     draw() {
@@ -173,6 +180,7 @@ class Ball {
 
         if (this.velocityin_y < 0 && this.y >= innerHeight - this.radius) {
             this.draw();
+            this.isjumping=false;
             p.forEach(p => p.make());
             s.forEach(s => s.make());
             d.draw();
@@ -180,8 +188,9 @@ class Ball {
             return;
         }
         for (let p1 of p) {
-            if (this.y + this.radius >= p1.y && this.y + this.radius <= p1.y + p1.height && this.velocityin_y < 0 && this.x >= p1.x && this.x <= p1.x + p1.width) {
+            if (this.y + this.radius+3 >= p1.y && this.y + this.radius+3 <= p1.y + p1.height && this.velocityin_y < 0 && this.x+this.radius-15 >= p1.x && this.x+this.radius -15<= p1.x + p1.width) {
                 this.velocityin_y = 0;
+                this.isjumping=false;
             }
         }
         this.y -= this.velocityin_y;
@@ -196,8 +205,10 @@ class Ball {
 
     jump() {
         if (gameOver) return;
+        if(!this.isjumping)
+        { this.isjumping=true;
         this.velocityin_y = 18;
-        this.move_upward();
+        this.move_upward();}
     }
 
     operate() {
@@ -229,6 +240,7 @@ class Ball {
                 d.move_left();
             }
         }
+        
         if (this.checkSpikeCollision()) {
             gameOver = true;
             drawGameOver();
@@ -267,7 +279,7 @@ addEventListener("keydown", (event) => {
     switch (event.key) {
         case "ArrowRight": ball.rightarrow = true; break;
         case "ArrowLeft": ball.leftarrow = true; break;
-        case "ArrowUp": if (ball.y >= innerHeight - ball.radius) {
+        case "ArrowUp":  {
             ball.jump();
         }
     }
