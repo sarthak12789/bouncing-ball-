@@ -3,10 +3,6 @@ let c = canvas.getContext('2d');
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 let gameOver = false;
-
-const platformImg = new Image();
-platformImg.src = 'bounceplat.png';
-
 class spikes {
     constructor(x, y) {
         this.x = x;
