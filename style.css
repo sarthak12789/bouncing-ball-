@@ -1,4 +1,9 @@
 
+*{
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
 body, html {
     margin: 0;
     padding: 0;
@@ -65,9 +70,3 @@ canvas {
     background-color: #0077cc;
 }
 
-
-*{
-    margin: 0;
-    padding: 0;
-    border: 0;
-}
