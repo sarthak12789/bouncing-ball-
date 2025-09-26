@@ -3,6 +3,10 @@ let c = canvas.getContext('2d');
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 let gameOver = false;
+let score = 0;
+const platformImg = new Image();
+platformImg.src = 'bounceplat.png';
+
 class spikes {
     constructor(x, y) {
         this.x = x;
@@ -42,16 +46,31 @@ let s = [
     new spikes(670,innerHeight),
     new spikes(950,innerHeight),
     new spikes(1200,innerHeight),
-    new spikes(1400,innerHeight)
+    new spikes(1400,innerHeight),
+    new spikes(1500,innerHeight),
+    new spikes(1600,innerHeight),
+    new spikes(1700,innerHeight),
+    new spikes(1800,innerHeight),
+    new spikes(1900,innerHeight),
+    new spikes(2000,innerHeight),
+    new spikes(2100,innerHeight),
+    new spikes(2200,innerHeight),
+    new spikes(2300,innerHeight),
+    new spikes(2400,innerHeight),
+    new spikes(2500,innerHeight),
+    new spikes(2600,innerHeight),
+    new spikes(2700,innerHeight),
+    new spikes(2800,innerHeight),
+    new spikes(2900,innerHeight)
 ];
 class destination
 {
     constructor()
     {
-        this.x=1600;
+        this.x=2500;
         this.y=innerHeight;
-        this.velocity=0.5;
-        this.aceleration=0.1;
+        this.velocity=0.3;
+        this.aceleration=0.05;
     }
     draw()
     {  c.fillStyle='rgba(255, 217, 0, 1)';
@@ -100,16 +119,26 @@ let p = [
     new plateform(1010, 500),
     new plateform(1220, 500),
     new plateform(1500, 500),
+    new plateform(1700,400),
+    new plateform(1900,300),
+    new plateform(2000,350),
+    new plateform(2200,400),
+    new plateform(2400,350),
+    new plateform(2600,250),
+    new plateform(2800,300),
+    new plateform(2900,350),
+   
+    
 ];
 
 class Ball {
     constructor(x, y) {
         this.x = x;
-        this.y = y;
         this.radius = 20;
-        this.velocityin_y = 18;
+        this.y = innerHeight-this.radius;
+        this.velocityin_y = 5;
         this.gravity = 0.5;
-        this.velocityin_x = 0.7;
+        this.velocityin_x = 0.5;
         this.acceleration = 0.1;
         this.rightarrow = false;
         this.leftarrow = false;
@@ -196,7 +225,7 @@ class Ball {
         p.forEach(p => p.make());
         s.forEach(s => s.make());
         d.draw();
-        requestAnimationFrame(this.move_upward.bind(this));
+        ;
     }
 
     jump() {
@@ -204,12 +233,33 @@ class Ball {
         if(!this.isjumping)
         { this.isjumping=true;
         this.velocityin_y = 18;
-        this.move_upward();}
+        }
     }
 
     operate() {
-        if (gameOver) return; 
-          
+        if (gameOver) return;
+
+if (gameOver) return;
+this.y -= this.velocityin_y;
+this.velocityin_y -= this.gravity;
+
+if (this.velocityin_y < 0 && this.y + this.radius >= innerHeight) {
+    this.y = innerHeight - this.radius;
+    this.velocityin_y = 0; 
+    this.isjumping = false;
+}
+
+for (let p1 of p) {
+    if (this.y + this.radius >= p1.y && 
+        this.y + this.radius <= p1.y + p1.height && 
+        this.velocityin_y < 0 && 
+        this.x + this.radius > p1.x && 
+        this.x - this.radius < p1.x + p1.width) {
+        this.velocityin_y = 0; 
+        this.isjumping = false;
+        this.y = p1.y - this.radius; 
+    }
+}  
         if (this.checkDestinationCollision()) {
     gameOver = true;
     drawGameWon();
@@ -268,7 +318,7 @@ function drawGameOver() {
     c.fillText("GAME OVER!", innerWidth/2, innerHeight/2);
 }
 
-let ball = new Ball(50, innerHeight - 20);
+let ball = new Ball(50, innerHeight - 38);
 ball.draw();
 
 addEventListener("keydown", (event) => {
