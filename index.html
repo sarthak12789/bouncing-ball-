@@ -2,13 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>bouncing ball</title>
-    <link rel="icon" href="./image (1).png"type="image/x-icon">
+    <title>Bouncing ball</title>
+    <link rel="stylesheet" href="style.css">
+     <link rel="icon" href="./image (1).png"type="image/x-icon">
 </head>
-<body>
-    <canvas style="border:1px solid black;"> </canvas>
-       
+<body class="home">
+
+    <div class="home-container">
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <script>
+        function startGame() {
+            window.location.href = "game.html";
+        }
+    </script>
 </body>
 </html>
-<script src="./bounce.js"></script>

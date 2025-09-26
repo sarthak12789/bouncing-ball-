@@ -1,0 +1,66 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+    
+    
+}
+
+body.home {background: url(https://img.tapimg.net/market/images/01558c61b161a4ae45c2337aee15abf2.png);
+    background-size: 100% 900px;
+    background-repeat: no-repeat;
+}
+
+.home-container {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+}
+
+
+.home-container button {
+    padding: 15px 30px;
+    font-size: 24px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.3);
+    transition: background-color 0.3s;
+}
+
+.home-container button:hover {
+    background-color: #218838;
+}
+
+
+canvas {
+    display: block;
+}
+
+#replaybutton {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px 30px;
+    font-size: 24px;
+    background-color: #00aaff;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: none;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+}
+
+#replaybutton:hover {
+    background-color: #0077cc;
+}
+
