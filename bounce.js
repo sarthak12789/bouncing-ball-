@@ -5,17 +5,27 @@ replayBtn.addEventListener('click', () => {
 });
 
 
+
 let canvas = document.querySelector('canvas');
 let c = canvas.getContext('2d');
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 let gameOver = false;
-let score = 0;
+
 const platformImg = new Image();
 platformImg.src = 'bounceplat.png';
-const backgroundImg = new Image();
-backgroundImg.src = 'background.jpg'; 
 
+const backgroundImg = new Image();
+backgroundImg.src = 'background.jpg';
+
+
+function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
+    const areaOrig = Math.abs((bx - ax)*(cy - ay) - (cx - ax)*(by - ay));
+    const area1 = Math.abs((ax - px)*(by - py) - (bx - px)*(ay - py));
+    const area2 = Math.abs((bx - px)*(cy - py) - (cx - px)*(by - py));
+    const area3 = Math.abs((cx - px)*(ay - py) - (ax - px)*(cy - py));
+    return area1 + area2 + area3 <= areaOrig + 0.1;
+}
 
 class spikes {
     constructor(x, y) {
@@ -28,7 +38,7 @@ class spikes {
         this.aceleration = 0.1;
     }
     make() {
-        c.fillStyle =  'rgba(35, 4, 241, 1)';
+        c.fillStyle =  'rgba(35, 4, 241, 1)';
         for (let i = 0; i < this.count; i++) {
             let x = i * this.width + this.x;
             c.beginPath();
@@ -86,34 +96,35 @@ class UpsideDownSpikes {
 }
 
 let s = [
-    new spikes(200,innerHeight),
-    new spikes(400,innerHeight),
-    new spikes(670,innerHeight),
-    new spikes(950,innerHeight),
-    new spikes(1200,innerHeight),
-    new spikes(1400,innerHeight)
+    new spikes(250, innerHeight),        
+    new spikes(450, innerHeight),         
+    new spikes(620, innerHeight - 70),    
+    new spikes(940, innerHeight - 70),    
+    new spikes(1220, innerHeight),     
+    new spikes(1500, innerHeight),      
+    new spikes(1850, innerHeight),      
 ];
 
 let upsideSpikes = [
-    new UpsideDownSpikes(300, 0), 
-    new UpsideDownSpikes(800, 0),
-    new UpsideDownSpikes(1300, 0),
+    new UpsideDownSpikes(500, 100),  
+    new UpsideDownSpikes(850, 200),  
+    new UpsideDownSpikes(1150, 200),   
+    new UpsideDownSpikes(1450, 200),  
+    new UpsideDownSpikes(1700, 280),  
 ];
 
-class destination
-{
-    constructor()
-    {
-        this.x=1600;
-        this.y=innerHeight;
-        this.velocity=0.5;
-        this.aceleration=0.1;
+class destination {
+    constructor() {
+        this.x = 2000;
+        this.y = innerHeight;
+        this.velocity = 0.5;
+        this.aceleration = 0.1;
     }
-    draw() {
+   draw() {
     c.fillStyle = 'rgba(255, 217, 0, 1)';
     c.fillRect(this.x, this.y - 300, 100, 300);
 
-    
+   
     c.fillStyle = 'black'; 
     c.font = '20px Arial'; 
     c.textAlign = 'center'; 
@@ -135,7 +146,6 @@ class plateform {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.initialX = x;
         this.width = Math.random() * 40 + 100;
         this.height = 20;
         this.velocity = 0.5;
@@ -155,22 +165,23 @@ class plateform {
 }
 
 let p = [
-    new plateform(250, 450),
-    new plateform(500, 500),
-    new plateform(770, 500),
-    new plateform(1010, 500),
-    new plateform(1220, 500),
-    new plateform(1500, 500),
+    new plateform(200, 500),
+    new plateform(500, 430),
+    new plateform(850, 480),
+    new plateform(1150, 410),
+    new plateform(1450, 470),
+    new plateform(1700, 390),
+    new plateform(1800, 550),
 ];
 
 class Ball {
     constructor(x, y) {
         this.x = x;
+        this.y = y;
         this.radius = 20;
-        this.y = innerHeight - this.radius; 
-        this.velocityin_y = 18;
+        this.velocityin_y = 0;
         this.gravity = 0.5;
-        this.velocityin_x = 0.5;
+        this.velocityin_x = 0.7;
         this.acceleration = 0.1;
         this.rightarrow = false;
         this.leftarrow = false;
@@ -210,15 +221,15 @@ class Ball {
 }
 
 
-    checkSpikeCollision() {
-    
+   checkSpikeCollision() {
+   
     for (let spikeGroup of s) {
         for (let i = 0; i < spikeGroup.count; i++) {
             let spikeX = spikeGroup.x + i * spikeGroup.width;
             let spikeY = spikeGroup.y;
             let spikeWidth = spikeGroup.width;
             let spikeHeight = spikeGroup.height;
-            
+           
             const ax = spikeX, ay = spikeY;
             const bx = spikeX + spikeWidth / 2, by = spikeY - spikeHeight;
             const cx = spikeX + spikeWidth, cy = spikeY;
@@ -244,7 +255,7 @@ class Ball {
             let spikeWidth = spikeGroup.width;
             let spikeHeight = spikeGroup.height;
 
-            
+          
             const ax = spikeX, ay = spikeY;
             const bx = spikeX + spikeWidth / 2, by = spikeY + spikeHeight;
             const cx = spikeX + spikeWidth, cy = spikeY;
@@ -267,20 +278,25 @@ class Ball {
 }
 
 
-    jump() {
-        if (gameOver) return;
-        if(this.canJump)
-        { 
-            this.isjumping = true;
-            this.canJump = false; 
-            this.velocityin_y = 18;
-        }
-    }
 
-    operate() {
-        if (gameOver) return; 
-        
-      
+    move_upward() {
+        if (gameOver) return;
+
+        c.clearRect(0, 0, innerWidth, innerHeight);
+
+        c.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+
+        if (this.checkDestinationCollision()) {
+            gameOver = true;
+            drawGameWon();
+            return;
+        }
+        if (this.checkSpikeCollision()) {
+            gameOver = true;
+            drawGameOver();
+            return;
+        }
+
         this.velocityin_y -= this.gravity;
         this.y -= this.velocityin_y;
 
@@ -292,9 +308,11 @@ class Ball {
         }
 
         for (let p1 of p) {
-         if (
-                this.y + this.radius >= p1.y && this.y + this.radius <= p1.y + p1.height &&
-                this.x + this.radius - 15 >= p1.x && this.x - this.radius + 15 <= p1.x + p1.width &&
+            if (
+                this.y + this.radius >= p1.y &&
+                this.y + this.radius <= p1.y + p1.height &&
+                this.x + this.radius - 15 >= p1.x &&
+                this.x - this.radius + 15 <= p1.x + p1.width &&
                 this.velocityin_y < 0
             ) {
                 this.y = p1.y - this.radius;
@@ -305,11 +323,12 @@ class Ball {
             }
         }
 
-    
         for (let p1 of p) {
             if (
-                this.y - this.radius <= p1.y + p1.height && this.y - this.radius >= p1.y &&
-                this.x + this.radius - 15 >= p1.x && this.x - this.radius + 15 <= p1.x + p1.width &&
+                this.y - this.radius <= p1.y + p1.height &&
+                this.y - this.radius >= p1.y &&
+                this.x + this.radius - 15 >= p1.x &&
+                this.x - this.radius + 15 <= p1.x + p1.width &&
                 this.velocityin_y > 0
             ) {
                 this.y = p1.y + p1.height + this.radius;
@@ -317,22 +336,59 @@ class Ball {
                 break;
             }
         }
-        
-        
-        if (this.checkDestinationCollision()) { gameOver = true; drawGameWon(); return; }
-        if (this.checkSpikeCollision()) { gameOver = true; drawGameOver(); return; }
 
-        if (this.leftarrow) {
-            if (this.x > this.maxleft) {
-                this.x -= this.velocityin_x;
-                this.velocityin_x += this.acceleration;
-            } else {
-                p.forEach(p1 => p1.move_right());
-                s.forEach(s1 => s1.move_right());
-                upsideSpikes.forEach(spike => spike.move_right());
-                d.move_right(); 
-            }
+        this.draw();
+        p.forEach(p => p.make());
+        s.forEach(s => s.make());
+        upsideSpikes.forEach(spike => spike.make());
+        d.draw();
+
+        if (this.isjumping) {
+            requestAnimationFrame(this.move_upward.bind(this));
         }
+    }
+
+    jump() {
+        if (gameOver) return;
+        if (this.canJump && !this.isjumping) {
+            this.isjumping = true;
+            this.canJump = false;
+            this.velocityin_y = 18;
+            this.move_upward();
+        }
+    }
+
+    operate() {
+        if (gameOver) return;
+
+        if (this.checkDestinationCollision()) {
+            gameOver = true;
+            drawGameWon();
+            return;
+        }
+
+       if (this.leftarrow) {
+    if (this.x > this.maxleft) {
+        this.x -= this.velocityin_x;
+        this.velocityin_x += this.acceleration;
+    } else {
+        let canMoveRight = p.some(plat => plat.x < plat.initialX);
+
+        if (canMoveRight) {
+            p.forEach(p1 => {
+                if (p1.x < p1.initialX) p1.move_right();
+            });
+            s.forEach(s1 => {
+                if (s1.x < s1.initialX) s1.move_right();
+            });
+            upsideSpikes.forEach(spike => {
+                if (spike.x < spike.initialX) spike.move_right();
+            });
+            if (d.x < 2000) d.move_right(); 
+        }
+    }
+}
+
 
         if (this.rightarrow) {
             if (this.x < innerWidth - this.maxright) {
@@ -345,39 +401,45 @@ class Ball {
                 d.move_left();
             }
         }
-           c.clearRect(0, 0, innerWidth, innerHeight);
+
+        if (this.checkSpikeCollision()) {
+            gameOver = true;
+            drawGameOver();
+            return;
+        }
+
+        c.clearRect(0, 0, innerWidth, innerHeight);
+
         c.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+
+        let onPlatform = false;
+        for (let plat of p) {
+            if (
+                this.y + this.radius >= plat.y &&
+                this.y + this.radius <= plat.y + plat.height &&
+                this.x + this.radius - 15 >= plat.x &&
+                this.x - this.radius + 15 <= plat.x + plat.width
+            ) {
+                onPlatform = true;
+                break;
+            }
+        }
+
+        if (!onPlatform && !this.isjumping && this.y + this.radius < innerHeight) {
+            this.isjumping = true;
+            this.canJump = false;
+            this.velocityin_y = 0;
+            this.move_upward();
+        }
+
         this.draw();
         p.forEach(p => p.make());
         s.forEach(s => s.make());
         upsideSpikes.forEach(spike => spike.make());
         d.draw();
-        drawScore();
 
-        
         requestAnimationFrame(this.operate.bind(this));
     }
-}
-function sign(p1x, p1y, p2x, p2y, p3x, p3y) {
-    return (p1x - p3x) * (p2y - p3y) - (p2x - p3x) * (p1y - p3y);
-}
-
-function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
-    const d1 = sign(px, py, ax, ay, bx, by);
-    const d2 = sign(px, py, bx, by, cx, cy);
-    const d3 = sign(px, py, cx, cy, ax, ay);
-
-    const has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-    const has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-
-    return !(has_neg && has_pos);
-}
-
-function drawScore() {
-    c.fillStyle = "black";
-    c.font = "24px Arial";
-    c.textAlign = "left";
-    c.fillText("Score: " + score, 10, 30); 
 }
 
 function drawGameWon() {
@@ -387,10 +449,7 @@ function drawGameWon() {
     c.font = "50px Arial";
     c.textAlign = "center";
     c.fillText("YOU WON!", innerWidth / 2, innerHeight / 2);
-    const replayBtn = document.getElementById('replaybutton');
-    if (replayBtn) {
-        replayBtn.style.display = 'block';
-    }
+    replayBtn.style.display = 'block';
 }
 
 function drawGameOver() {
@@ -400,14 +459,11 @@ function drawGameOver() {
     c.font = "50px Arial";
     c.textAlign = "center";
     c.fillText("GAME OVER!", innerWidth / 2, innerHeight / 2);
-    const replayBtn = document.getElementById('replaybutton');
-    if (replayBtn) {
-        replayBtn.style.display = 'block';
-    }
+    replayBtn.style.display = 'block';
 }
 
 
-let ball = new Ball(50, innerHeight - 38);
+let ball = new Ball(50, innerHeight - 20);
 ball.draw();
 
 addEventListener("keydown", (event) => {
@@ -463,4 +519,4 @@ addEventListener("keyup", (event) => {
 });
 
 
-ball.operate(); 
+ball.operate();
