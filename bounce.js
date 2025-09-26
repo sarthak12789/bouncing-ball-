@@ -11,21 +11,10 @@ let c = canvas.getContext('2d');
 canvas.width = document.documentElement.clientWidth;
 canvas.height = document.documentElement.clientHeight;
 let gameOver = false;
-
+let score = 0;
 const platformImg = new Image();
 platformImg.src = 'bounceplat.png';
 
-const backgroundImg = new Image();
-backgroundImg.src = 'background.jpg';
-
-
-function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
-    const areaOrig = Math.abs((bx - ax)*(cy - ay) - (cx - ax)*(by - ay));
-    const area1 = Math.abs((ax - px)*(by - py) - (bx - px)*(ay - py));
-    const area2 = Math.abs((bx - px)*(cy - py) - (cx - px)*(by - py));
-    const area3 = Math.abs((cx - px)*(ay - py) - (ax - px)*(cy - py));
-    return area1 + area2 + area3 <= areaOrig + 0.1;
-}
 
 class spikes {
     constructor(x, y) {
@@ -96,29 +85,21 @@ class UpsideDownSpikes {
 }
 
 let s = [
-    new spikes(250, innerHeight),        
-    new spikes(450, innerHeight),         
-    new spikes(620, innerHeight - 70),    
-    new spikes(940, innerHeight - 70),    
-    new spikes(1220, innerHeight),     
-    new spikes(1500, innerHeight),      
-    new spikes(1850, innerHeight),      
+    new spikes(200,innerHeight),
+    new spikes(400,innerHeight),
+    new spikes(670,innerHeight),
+    new spikes(950,innerHeight),
+    new spikes(1200,innerHeight),
+    new spikes(1400,innerHeight)
 ];
-
-let upsideSpikes = [
-    new UpsideDownSpikes(500, 100),  
-    new UpsideDownSpikes(850, 200),  
-    new UpsideDownSpikes(1150, 200),   
-    new UpsideDownSpikes(1450, 200),  
-    new UpsideDownSpikes(1700, 280),  
-];
-
-class destination {
-    constructor() {
-        this.x = 2000;
-        this.y = innerHeight;
-        this.velocity = 0.5;
-        this.aceleration = 0.1;
+class destination
+{
+    constructor()
+    {
+        this.x=1600;
+        this.y=innerHeight;
+        this.velocity=0.5;
+        this.aceleration=0.1;
     }
    draw() {
     c.fillStyle = 'rgba(255, 217, 0, 1)';
@@ -165,23 +146,21 @@ class plateform {
 }
 
 let p = [
-    new plateform(200, 500),
-    new plateform(500, 430),
-    new plateform(850, 480),
-    new plateform(1150, 410),
-    new plateform(1450, 470),
-    new plateform(1700, 390),
-    new plateform(1800, 550),
+    new plateform(250, 450),
+    new plateform(500, 500),
+    new plateform(770, 500),
+    new plateform(1010, 500),
+    new plateform(1220, 500),
+    new plateform(1500, 500),
 ];
 
 class Ball {
     constructor(x, y) {
         this.x = x;
-        this.y = y;
         this.radius = 20;
-        this.velocityin_y = 0;
+        this.velocityin_y = 18;
         this.gravity = 0.5;
-        this.velocityin_x = 0.7;
+        this.velocityin_x = 0.5;
         this.acceleration = 0.1;
         this.rightarrow = false;
         this.leftarrow = false;
@@ -342,25 +321,20 @@ class Ball {
         s.forEach(s => s.make());
         upsideSpikes.forEach(spike => spike.make());
         d.draw();
-
-        if (this.isjumping) {
-            requestAnimationFrame(this.move_upward.bind(this));
-        }
+        requestAnimationFrame(this.move_upward.bind(this));
     }
 
     jump() {
         if (gameOver) return;
-        if (this.canJump && !this.isjumping) {
-            this.isjumping = true;
-            this.canJump = false;
-            this.velocityin_y = 18;
-            this.move_upward();
-        }
+        if(!this.isjumping)
+        { this.isjumping=true;
+        this.velocityin_y = 18;
+        this.move_upward();}
     }
 
     operate() {
-        if (gameOver) return;
-
+        if (gameOver) return; 
+          
         if (this.checkDestinationCollision()) {
             gameOver = true;
             drawGameWon();
@@ -463,7 +437,7 @@ function drawGameOver() {
 }
 
 
-let ball = new Ball(50, innerHeight - 20);
+let ball = new Ball(50, innerHeight - 38);
 ball.draw();
 
 addEventListener("keydown", (event) => {
